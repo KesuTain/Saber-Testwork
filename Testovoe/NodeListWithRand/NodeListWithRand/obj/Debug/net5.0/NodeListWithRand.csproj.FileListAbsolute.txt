@@ -1,0 +1,16 @@
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\bin\Debug\net5.0\NodeListWithRand.exe
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\bin\Debug\net5.0\NodeListWithRand.deps.json
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\bin\Debug\net5.0\NodeListWithRand.runtimeconfig.json
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\bin\Debug\net5.0\NodeListWithRand.runtimeconfig.dev.json
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\bin\Debug\net5.0\NodeListWithRand.dll
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\bin\Debug\net5.0\ref\NodeListWithRand.dll
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\bin\Debug\net5.0\NodeListWithRand.pdb
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\obj\Debug\net5.0\NodeListWithRand.csproj.AssemblyReference.cache
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\obj\Debug\net5.0\NodeListWithRand.GeneratedMSBuildEditorConfig.editorconfig
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\obj\Debug\net5.0\NodeListWithRand.AssemblyInfoInputs.cache
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\obj\Debug\net5.0\NodeListWithRand.AssemblyInfo.cs
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\obj\Debug\net5.0\NodeListWithRand.csproj.CoreCompileInputs.cache
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\obj\Debug\net5.0\NodeListWithRand.dll
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\obj\Debug\net5.0\ref\NodeListWithRand.dll
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\obj\Debug\net5.0\NodeListWithRand.pdb
+D:\Dotnet\Testovoe\NodeListWithRand\NodeListWithRand\obj\Debug\net5.0\NodeListWithRand.genruntimeconfig.cache
