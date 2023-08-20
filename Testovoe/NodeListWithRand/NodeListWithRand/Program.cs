@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -8,34 +9,57 @@ namespace NodeListWithRand
     class Program
     {
         public const string Path = "D://Dotnet/Testovoe/text.txt";
+        public const int CountElements = 1000;
         static void Main(string[] args)
         {
             ListRand listRand = new ListRand();
 
-            ListNode l1 = new ListNode() { Data = "Test_1" };
-            ListNode l2 = new ListNode() { Data = "Test_2" };
-            ListNode l3 = new ListNode() { Data = "Test_3" };
-            ListNode l4 = new ListNode() { Data = "Test_4" };
-            ListNode l5 = new ListNode() { Data = "Test_5" };
-            ListNode l6 = new ListNode() { Data = "Test_6" };
+            ListNode[] arrNode = new ListNode[CountElements];
+            listRand.Count = CountElements;
 
-            l1.Prev = null; l1.Next = l2; l1.Rand = l1;
-            l2.Prev = l1; l2.Next = l3; l2.Rand = l3;
-            l3.Prev = l2; l3.Next = l4; l3.Rand = l4;
-            l4.Prev = l3; l4.Next = l5; l4.Rand = l2;
-            l5.Prev = l4; l5.Next = l6; l5.Rand = l6;
-            l6.Prev = l5; l6.Next = null; l6.Rand = l5;
+            for(int i = 0; i < CountElements; i++)
+            {
+                arrNode[i] = new ListNode();
+                arrNode[i].Data = $"El{i}";
 
-            listRand.Head = l1;
-            listRand.Tail = l6;
-            listRand.Count = 6;
+                if(i != 0)
+                {
+                    arrNode[i].Prev = arrNode[i - 1];
+                    arrNode[i - 1].Next = arrNode[i];
+                }
+            }
+
+            listRand.Head = arrNode[0];
+            listRand.Tail = arrNode[CountElements - 1];
+
+            for (int i = 0; i < CountElements; i++)
+            {
+                Random rnd = new Random();
+                int randElement = rnd.Next(0, CountElements);
+                Random rndEmpty = new Random();
+                int randEmpty = rndEmpty.Next(0, 5);
+                if (randEmpty != 3)
+                {
+                    arrNode[i].Rand = arrNode[randElement];
+                }
+            }
 
             DebugOutputInfo(listRand);
 
-            using (FileStream fstream = new FileStream(Path, FileMode.OpenOrCreate))
+            Stopwatch stopwatch = new();
+
+            using (FileStream fstream = new FileStream(Path, FileMode.Create))
             {
+                stopwatch.Start();
+
                 listRand.Serialize(fstream);
+
+                stopwatch.Stop();
+
             }
+
+            Console.WriteLine($"Serialization time: {stopwatch.ElapsedMilliseconds}. Element count = {CountElements}");
+            stopwatch.Restart();
 
             ListRand listRand2 = new ListRand();
 
@@ -44,6 +68,7 @@ namespace NodeListWithRand
                 listRand2.Deserialize(fstream);
             }
 
+            Console.WriteLine($"Deserialization time: {stopwatch.ElapsedMilliseconds}. Element count = {CountElements}");
             DebugOutputInfo(listRand2);
         }
 
@@ -53,7 +78,14 @@ namespace NodeListWithRand
             string endFile = string.Empty;
             while(current != null)
             {
-                endFile += $"Element {current.Data} with link rand to element {current.Rand.Data} \n";
+                if(current.Rand != null)
+                {
+                    endFile += $"Element {current.Data} with link rand to element {current.Rand.Data} \n";
+                }
+                else
+                {
+                    endFile += $"Element {current.Data} with link rand to element Empty \n";
+                }
                 current = current.Next;
             }
             Console.WriteLine(endFile);
@@ -76,37 +108,42 @@ namespace NodeListWithRand
 
         public void Serialize(FileStream s)
         {
-            ListNode[] arrNode = new ListNode[Count];
-
             byte[] bytesCount = Encoding.Default.GetBytes($"{Count};");
             s.Write(bytesCount);
 
+            Dictionary<ListNode, Tuple<int, int>> dicNode = new Dictionary<ListNode, Tuple<int, int>>();
             ListNode current = Head;
             int counter = 0;
-            while(current != null)
-            {
-                byte[] bytesData = Encoding.Default.GetBytes($"{current.Data};");
-                s.Write(bytesData);
 
-                arrNode[counter] = current;
+            if(Head == null)
+            {
+                Console.WriteLine("Head element is empty!");
+                return;
+            }
+
+            while (current != null)
+            {
+                dicNode.Add(current, Tuple.Create(counter, -1));
+
                 current = current.Next;
                 counter++;
             }
 
-            Dictionary<ListNode, int> dicNode = new Dictionary<ListNode, int>();
-            for (int i = 0; i < arrNode.Length; i++)
+            current = Head;
+            counter = 0;
+            while (current != null)
             {
-                dicNode.Add(arrNode[i], i);
-            }
+                if (current.Rand != null)
+                {
+                    dicNode[current] = Tuple.Create(dicNode[current].Item1, dicNode[current.Rand].Item1);
+                }
 
-            string numbersRand = string.Empty;
-            for (int i = 0; i < arrNode.Length; i++)
-            {
-                numbersRand += dicNode[arrNode[i].Rand] + "-";
-            }
+                byte[] bytesData = Encoding.Default.GetBytes($"{current.Data}:{dicNode[current].Item2};");
+                s.Write(bytesData);
 
-            byte[] bytesNumbers = Encoding.Default.GetBytes(numbersRand.TrimEnd('-'));
-            s.Write(bytesNumbers);
+                current = current.Next;
+                counter++;
+            }
         }
 
         public void Deserialize(FileStream s)
@@ -119,36 +156,40 @@ namespace NodeListWithRand
 
             Count = int.Parse(rows[0]);
 
+            if(Count == 0)
+            {
+                Console.WriteLine("File is empty!");
+                return;
+            }
+
             ListNode[] arrNode = new ListNode[Count];
+
             for(int i = 0; i < Count; i++)
             {
                 arrNode[i] = new ListNode();
-                arrNode[i].Data = rows[i + 1];
-            }
+                arrNode[i].Data = rows[i + 1].Split(new char[] { ':' })[0];
 
-            string[] stringNumbersRand = rows[rows.Length - 1].Split(new char[] { '-' });
-            for (int i = 0; i < Count; i++)
-            {
-                int randElementIndex = int.Parse(stringNumbersRand[i]);
-                arrNode[i].Rand = arrNode[randElementIndex];
+                if(i != 0)
+                {
+                    arrNode[i].Prev = arrNode[i - 1];
+                    arrNode[i - 1].Next = arrNode[i];
+                }
             }
 
             Head = arrNode[0];
-            Head.Prev = null;
-            Head.Next = arrNode[1];
+            Tail = arrNode[Count - 1];
 
-            Tail = arrNode[arrNode.Length - 1];
-            Tail.Prev = arrNode[arrNode.Length - 2];
-            Tail.Next = null;
-
-            ListNode current = arrNode[1];
-            int counter = 1;
-            while (current != Tail)
+            for (int i = 0; i < Count; i++)
             {
-                current.Next = arrNode[counter + 1];
-                current.Prev = arrNode[counter - 1];
-                current = current.Next;
-                counter++;
+                int randElementIndex = int.Parse(rows[i + 1].Split(new char[] { ':' })[1]);
+                if(randElementIndex == -1)
+                {
+                    arrNode[i].Rand = null;
+                }
+                else
+                {
+                    arrNode[i].Rand = arrNode[randElementIndex];
+                }
             }
         }
     }
